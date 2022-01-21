@@ -1,0 +1,33 @@
+---
+- name: My test playbook
+  hosts: all
+  vars:
+    file: ~/hello.txt
+  
+  tasks:
+  - name: generate file if file does not exist on playbook
+    stat:
+      path: '{{ file }}'
+    register: file_result
+
+  - name: debug info
+    debug:
+      var: file_result
+
+  - name: generate file if file does not exist on playbook
+    file:
+      path: '{{ file }}'
+      state: touch
+    when: not file_result.stat.exists
+
+  - name: test if file exist now
+    stat:
+      path: '{{ file }}'
+    register: file_result
+
+  - name: add line to file
+    lineinfile:
+      path: '{{ file }}'
+      line: 'this is a test line'
+      state: present
+    when: file_result.stat.exists

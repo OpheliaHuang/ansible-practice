@@ -1,0 +1,42 @@
+---
+- name: My email playbook
+  hosts: target1
+  vars:
+    packages:
+      - 
+        name: nginx
+        required: True
+      -
+        name: httpd24
+        required: False
+      
+  tasks:
+    - name: enable nginx
+      become: yes
+      command: sudo amazon-linux-extras enable nginx1
+
+    - name: "install {{ item.name }}"
+      yum:
+        name: "{{ item.name }}"
+        state: present
+      become: yes
+      loop: "{{ packages }}"
+      when: item.required == True
+
+    - 
+      name: check whether httpd is enabled
+      command: systemctl is-enabled httpd
+      become: yes
+      register: output
+    
+    - 
+      name: check httpd status
+      shell: service httpd status
+      become: yes
+ 
+    
+    -
+      name: debug httpd
+      debug:
+        var: output
+
